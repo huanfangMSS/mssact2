@@ -2,14 +2,102 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 移动端自适应 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>活动首页 - 线上主题活动</title>
-    <!-- 引入公共样式 -->
-    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #2563eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        .nav-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 15px 0;
+            text-decoration: none;
+        }
+        .nav-list {
+            display: flex;
+            list-style: none;
+        }
+        .nav-list li a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 20px 24px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .nav-list li a:hover, .nav-list li a.active {
+            background: #1d4ed8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 26px;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #475569;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #2563eb;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+    </style>
 </head>
 <body>
-    <!-- 导航栏（所有页面统一复制这段） -->
     <header>
         <div class="nav-wrap">
             <a href="index.html" class="logo">夏日狂欢活动</a>
@@ -21,7 +109,6 @@
         </div>
     </header>
 
-    <!-- 首页主体内容 -->
     <main class="container">
         <div class="card">
             <h2>欢迎参与夏日线上狂欢活动</h2>
@@ -39,9 +126,8 @@
         </div>
     </main>
 
-    <!-- 统一页脚 -->
     <footer>
-        <p>© 2026 线上活动专题页 | 所有页面共用样式模板</p>
+        <p>© 2026 线上活动专题页</p>
     </footer>
 </body>
 </html>

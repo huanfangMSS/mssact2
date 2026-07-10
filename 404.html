@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 强制移动端完美适配，禁止缩放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>404 页面迷路啦</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            background: #05001a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 15px;
+        }
+
+        /* 星空粒子 */
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 漂浮陨石 */
+        .meteor {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(#777, #222);
+            border-radius: 40%;
+            filter: blur(1px);
+            animation: float 12s infinite linear alternate;
+        }
+        .meteor:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+        .meteor:nth-child(2) { top: 70%; right: 5%; animation-delay: 3s; width: 50px; height: 50px; }
+        .meteor:nth-child(3) { top: 40%; left: 90%; animation-delay: 6s; width: 35px; height: 35px; }
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-40px, 30px) rotate(180deg); }
+        }
+
+        /* 故障风404文字 */
+        .error-box {
+            z-index: 10;
+            text-align: center;
+            width: 100%;
+            max-width: 520px;
+        }
+        .num-404 {
+            font-size: 160px;
+            font-weight: 900;
+            position: relative;
+            color: #fff;
+            letter-spacing: 10px;
+            line-height: 1;
+        }
+        .num-404::before {
+            content: "404";
+            position: absolute;
+            left: -4px;
+            text-shadow: -3px 0 #00ccff;
+            color: transparent;
+            overflow: hidden;
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+        .num-404::after {
+            content: "404";
+            position: absolute;
+            left: 4px;
+            text-shadow: -3px 0 #ff3366;
+            color: transparent;
+            overflow: hidden;
+            animation: glitch 3s infinite linear alternate-reverse;
+        }
+        @keyframes glitch {
+            0% { clip-path: inset(40% 0 61% 0); }
+            20% { clip-path: inset(92% 0 1% 0); }
+            40% { clip-path: inset(43% 0 1% 0); }
+            60% { clip-path: inset(25% 0 58% 0); }
+            80% { clip-path: inset(54% 0 7% 0); }
+            100% { clip-path: inset(58% 0 43% 0); }
+        }
+
+        .tip-text {
+            font-size: 22px;
+            color: #b8cfff;
+            margin: 12px 0 20px;
+            letter-spacing: 2px;
+        }
+        .desc {
+            color: #8899cc;
+            font-size: 16px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        /* 发光按钮 加大触摸区域 */
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 18px 50px;
+            font-size: 18px;
+            color: #fff;
+            border: 2px solid #00ccff;
+            border-radius: 999px;
+            background: transparent;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 15px #00ccff44;
+            min-width: 200px;
+        }
+        .back-btn:hover,
+        .back-btn:active {
+            background: #00ccff;
+            color: #05001a;
+            box-shadow: 0 0 30px #00ccff;
+        }
+
+        /* ========== 移动端适配核心 ========== */
+        @media screen and (max-width: 768px) {
+            .num-404 {
+                font-size: 100px;
+                letter-spacing: 3px;
+            }
+            .tip-text {
+                font-size: 19px;
+            }
+            .desc {
+                font-size: 15px;
+            }
+            .meteor {
+                transform: scale(0.7);
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .num-404 {
+                font-size: 72px;
+                letter-spacing: 2px;
+            }
+            .tip-text {
+                font-size: 17px;
+                margin: 8px 0 15px;
+            }
+            .desc {
+                font-size: 14px;
+                margin-bottom: 30px;
+            }
+            .back-btn {
+                padding: 16px 40px;
+                font-size: 16px;
+                width: 100%;
+            }
+            .meteor {
+                transform: scale(0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 生成星空 -->
+    <script>
+        // 移动端减少星星数量，避免卡顿
+        const starWrap = document.body;
+        const isMobile = window.innerWidth < 768;
+        const starCount = isMobile ? 60 : 120;
+        for(let i = 0; i < starCount; i++){
+            const star = document.createElement("div");
+            star.className = "star";
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + "px";
+            star.style.height = size + "px";
+            star.style.left = Math.random() * 100 + "%";
+            star.style.top = Math.random() * 100 + "%";
+            star.style.animationDelay = Math.random() * 3 + "s";
+            starWrap.appendChild(star);
+        }
+    </script>
+
+    <!-- 漂浮陨石 -->
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+
+    <!-- 404主体内容 -->
+    <div class="error-box">
+        <h1 class="num-404">404</h1>
+        <h2 class="tip-text">宇宙迷路，页面消失</h2>
+        <p class="desc">你寻找的页面已飘入星际深渊，不存在、已删除或链接地址错误，不如返回主页重新探索吧</p>
+        <a href="/" class="back-btn">返回首页</a>
+    </div>
+</body>
+</html>

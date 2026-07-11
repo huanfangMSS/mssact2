@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="幻方游戏工作室我的世界64/128像素皮肤定制官方定价页面，明码标价无隐形消费">
+    <meta name="keywords" content="我的世界皮肤定制,MC皮肤,64像素皮肤,128像素动态皮肤,网易MC皮肤">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <title>幻方游戏工作室 - 皮肤定制定价一览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body {
+            background: #0c0e14;
+            color: #e6e8ef;
+            min-height: 100vh;
+            padding: 40px 20px;
+            line-height: 1.7;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        /* 粒子画布层级 */
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            background: transparent;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        /* 顶部静态小字（新增无交互） */
+        .page-top-tip {
+            text-align: center;
+            color: #6c7280;
+            font-size: 14px;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+        /* 头部标题区 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+            border-bottom: 1px solid #252a35;
+            padding-bottom: 30px;
+        }
+        .page-header h1 {
+            font-size: 42px;
+            color: #7c5cff;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+        .page-header p {
+            color: #8a91a0;
+            font-size: 16px;
+        }
+        /* 预留扩展文案模块 */
+        .text-expand-block {
+            background: #141821;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 40px;
+            border-left: 4px solid #7c5cff;
+        }
+        .text-expand-block h3 {
+            color: #b3a0ff;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .expand-text-area {
+            color: #c5cbe0;
+        }
+        /* 定价卡片 */
+        .price-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+            margin-bottom: 50px;
+        }
+        .skin-card {
+            background: linear-gradient(145deg, #161b26, #0f131a);
+            border: 1px solid #2a303f;
+            border-radius: 12px;
+            padding: 28px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            will-change: transform, border-color;
+            transform: translateZ(0);
+            position: relative;
+        }
+        /* 卡片静态标签（无交互纯展示） */
+        .static-tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #7c5cff22;
+            color: #b3a0ff;
+        }
+        .skin-card:hover {
+            border-color: #7c5cff66;
+            transform: translateY(-4px);
+        }
+        .skin-card h2 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #272d3b;
+            padding-bottom: 10px;
+        }
+        .price-num {
+            font-size: 30px;
+            color: #7c5cff;
+            font-weight: bold;
+            margin: 14px 0;
+        }
+        .desc-item {
+            display: flex;
+            margin: 8px 0;
+            color: #a2a9bb;
+        }
+        .desc-item::before {
+            content: "•";
+            color: #7c5cff;
+            margin-right: 10px;
+        }
+        /* 底部备注 */
+        .note-area {
+            margin-top: 70px;
+            padding: 20px;
+            background: #12151c;
+            border-radius: 8px;
+            color: #949cb0;
+        }
+        .note-area h4 {
+            color: #b3a0ff;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        /* 新增页脚静态版权区域（无交互） */
+        .page-footer {
+            margin-top: 80px;
+            padding-top: 24px;
+            border-top: 1px solid #252a35;
+            text-align: center;
+            color: #5c6372;
+            font-size: 13px;
+        }
+        /* ===================== 悬浮联系浮球样式 ===================== */
+        .float-contact-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c5cff, #9b7fff);
+            box-shadow: 0 4px 20px #7c5cff60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 26px;
+            cursor: pointer;
+            z-index: 10000;
+            transition: transform 0.3s ease;
+            user-select: none;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        .float-contact-btn:hover {
+            transform: scale(1.1);
+        }
+        /* 遮罩层 */
+        .contact-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .contact-mask.show {
+            display: flex;
+        }
+        /* 联系弹窗 */
+        .contact-popup {
+            width: 100%;
+            max-width: 360px;
+            background: #141821;
+            border: 1px solid #7c5cff40;
+            border-radius: 14px;
+            padding: 30px;
+            position: relative;
+        }
+        .contact-popup h3 {
+            color: #b3a0ff;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 22px;
+        }
+        /* 关闭按钮 */
+        .popup-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            color: #8a91a0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .popup-close:hover {
+            color: #fff;
+        }
+        /* 联系方式选项 */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #0f131a;
+            margin-bottom: 14px;
+            text-decoration: none;
+            color: #e6e8ef;
+            transition: background 0.2s ease, border-left 0.2s ease;
+            will-change: background, border-left;
+        }
+        .contact-item:hover {
+            background: #1c222f;
+            border-left: 4px solid #7c5cff;
+        }
+        .contact-item .icon {
+            font-size: 24px;
+            margin-right: 14px;
+            width: 30px;
+            text-align: center;
+        }
+        .qq-icon {
+            color: #50a8ff;
+        }
+        .wx-icon {
+            color: #39c5bb;
+        }
+        .contact-tip {
+            font-size: 13px;
+            color: #8a91a0;
+            margin-top: 6px;
+        }
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .page-header h1 {
+                font-size: 28px;
+            }
+            .price-wrap {
+                grid-template-columns: 1fr;
+            }
+            .float-contact-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 22px;
+                right: 16px;
+                bottom: 20px;
+            }
+            .page-top-tip {
+                font-size: 12px;
+            }
+        }
+
+        /* ========== 新增：PDF规则说明专属样式（不改动原有任何样式） ========== */
+        .rule-desc-block {
+            background: #141821;
+            border-radius: 10px;
+            padding: 28px;
+            margin: 60px 0;
+            border: 1px solid #7c5cff30;
+        }
+        .rule-desc-block h2 {
+            color: #b3a0ff;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #272d3b;
+        }
+        .rule-desc-block .note-sub {
+            color: #949cb0;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .rule-desc-block h3 {
+            color: #d1c0ff;
+            font-size: 19px;
+            margin: 32px 0 12px;
+        }
+        .rule-desc-block p {
+            color: #c5cbe0;
+            margin: 8px 0;
+            text-indent: 2em;
+        }
+        .rule-desc-block .list-item {
+            color: #c5cbe0;
+            margin: 6px 0 6px 1em;
+        }
+        .rule-desc-block .warn-text {
+            color: #ff9b9b;
+        }
+        .rule-desc-block .end-sign {
+            margin-top: 40px;
+            text-align: right;
+            color: #8a91a0;
+        }
+    </style>
+    <style>
+        img{
+        width:300px;
+        height:400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子画布 -->
+    <canvas id="particleCanvas"></canvas>
+    <!-- 悬浮联系按钮 -->
+    <div class="float-contact-btn" id="openContact">
+        咨询
+    </div>
+    <!-- 联系弹窗遮罩 -->
+    <div class="contact-mask" id="contactMask">
+        <div class="contact-popup">
+            <span class="popup-close" id="closeContact">×</span>
+            <h3>联系幻方工作室</h3>
+            <!-- QQ链接：把QQ号替换成你的 -->
+            <a href="tencent://message/?uin=3661330376&Site=&Menu=yes" class="contact-item">
+                <span class="icon qq-icon">Q</span>
+                <div>
+                    <div>QQ咨询</div>
+                    <div class="contact-tip">点击自动唤起QQ聊天窗口，无法唤起时手动搜索3661330376</div>
+                </div>
+            </a>
+            <!-- 微信 -->
+            <div class="contact-item">
+                <span class="icon wx-icon">W</span>
+                <div>
+                    <div>微信联系</div>
+                    <div class="contact-tip">微信号：A3661330376</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- 新增：顶部无交互静态提示文字 -->
+        <div class="page-top-tip">
+            专业MC皮肤定制工作室 · 原创手绘 · 不盗用素材 | 网站代码：520789
+        </div>
+        <!-- 页面头部 -->
+        <header class="page-header">
+            <h1>幻方游戏工作室</h1>
+            <p>Skin Customize Price List | 皮肤定制价格总览</p>
+        </header>
+        <!-- 预留文字扩展区1 -->
+        <div class="text-expand-block">
+            <h3>工作室服务说明</h3>
+            <div class="expand-text-area">
+                  幻方工作室为各位玩家提供64像素、128像素我的世界皮肤定制项目<br>
+                
+            欢迎你下单！本页面为静态页面。仅供价格查询，如需定制请返回QQ或微信联系我们的客服。</div>
+        </div>
+        <!-- 皮肤定价卡片（新增静态标签，仅展示无交互） -->
+        <section class="price-wrap">
+            <div class="skin-card">
+                <span class="static-tag">款式1</span>
+                 <h2>64像素皮肤定制</h2>
+                <div class="price-num">¥免费</div>
+                <div class="desc-item">单件64像素皮肤定制</div>
+                <div class="desc-item">二对一定制服务</div>
+                <div class="desc-item">最快3个工作日交付</div>
+                <div class="desc-item">可赠送基础渲染图</div>
+                <div class="desc-item">免费上传网易</div>
+            </div>
+            <div class="skin-card">
+                <span class="static-tag">款式2</span>
+                <h2>128像素皮肤定制</h2>
+                <div class="price-num">¥免费</div>
+                <div class="desc-item">单件128像素皮肤定制</div>
+                <div class="desc-item">二对一定制服务</div>
+                <div class="desc-item">最快3个工作日交付</div>
+                <div class="desc-item">可赠送基础渲染图</div>
+                <div class="desc-item">免费上传网易</div>
+            </div>
+            <div class="skin-card">
+                <span class="static-tag">组合特惠款</span>
+                  <h2>64像素+128像素皮肤定制</h2>
+                <div class="price-num">¥40</div>
+                <div class="desc-item">活动优惠中！</div>
+                 <div class="desc-item">二对一定制服务</div>
+                <div class="desc-item">最快3个工作日交付</div>
+                <div class="desc-item">可赠送基础渲染图</div>
+                <div class="desc-item">免费上传网易</div>
+            </div>
+        </section>
+        <!-- 预留文字扩展区2 -->
+        <div class="text-expand-block">
+              <h3>联系方式</h3>
+            <div class="expand-text-area">
+                QQ：2928901280
+                QQ：3661330376
+                QQ：781907772
+                微信：A3661330376<br>
+                快来进店咨询吧！
+            </div>
+        </div>
+        <!-- 预留文字扩展区3 -->
+        <div class="text-expand-block">
+              <h3>活动优惠专区</h3>
+            <div class="expand-text-area">
+                暂无优惠活动，请等待更新。
+            </div>
+        </div>
+        <!-- 底部原有备注 -->
+        <div class="note-area">
+            <h4>免单获取须知</h4>
+            <p>1. 一人仅免单一次；</p>
+            <p>2. 仅可在64像素或128像素中任选一类免单；</p>
+            <p>3. 仅免费上传至网易版我的世界；</p>
+            <p>4.请继续探索彩蛋，以获得免单凭证！</p>
+            <!-- 下方可继续新增备注文本 -->
+        </div>
+
+        <!-- ========== 全新新增静态无交互板块：完整PDF文档内容 ========== -->
+        <div class="rule-desc-block">
+            <h2>幻方工作室皮肤定制规则与免责说明</h2>
+            <div class="note-sub">注:幻方工作室原浮欢阁工作室</div>
+            <p>尊敬的顾客：</p>
+            <p>为保障幻方工作室皮肤定制服务的有序开展，明确双方权利与义务，现将皮肤定制相关缴费规则、优惠福利、内容合规要求、版权责任、上架后使用规则、皮肤代投服务、内部审核规则等详细说明如下，请您在定制或代投服务开始前仔细阅读并知晓：</p>
+
+            <h3>一、定制押金缴纳规则</h3>
+            <p class="list-item">1. 押金缴纳要求：在皮肤定制服务正式开始前，您需先行支付 10 元押金。未按要求支付该押金的，工作室将不予启动皮肤定制流程，敬请谅解。</p>
+            <p class="list-item">2. 押金正常处理方式：当皮肤定制服务全部完成后，您前期支付的 10 元押金将自动融入定制服务的总金额中，即您在支付尾款时，可直接抵扣该 10 元押金，无需额外重复支付。</p>
+            <p class="list-item warn-text">3. 跑单顾客押金处理：若您在支付押金后，无合理理由取消定制需求(即 “跑单”)，该 10 元押金将不再以任何形式、任何理由退回，此款项将用于弥补工作室已投入的前期准备成本。</p>
+
+            <h3>二、定制完成后费用支付与退款规则</h3>
+            <p class="list-item">1. 费用支付前提：皮肤定制全部结束后，工作室会将定制成果交付于您，请您务必先认真检查皮肤的外观、细节、功能等是否存在问题。确认无误后，再完成剩余定制费用的支付。</p>
+            <p class="list-item warn-text">2. 退款限制说明：在您完成全部费用支付后，除因皮肤设计不符合网易平台审核要求导致未过审这一特殊情况外，工作室将不再退回任何已收取的定制费用，且不支持 “七天无理由退款” 服务。请您在支付前务必仔细确认定制成果，避免后续产生不必要的纠纷。</p>
+
+            <h3>三、老顾客专属优惠福利规则</h3>
+            <p>为感谢长期支持幻方工作室的顾客，特推出以下专属优惠福利，具体规则如下：</p>
+            <p class="list-item">1. 定制两次及以上顾客优惠：若您已在工作室完成过两次(含两次)皮肤定制，可凭往期定制相关凭证 (如支付记录、定制作品稿件等)联系工作室客服，经客服核实确认无误后，即可享受 最高 20 元的定制费用优惠。</p>
+            <p class="list-item">2. 连续定制三次及以上顾客免单福利：若您连续在工作室完成三次(含三次，即不包含两次)及以上皮肤定制，可额外享受 “一单免单” 福利(免单订单指单次定制服务费用全额减免，具体免单订单可与客服协商确定)。</p>
+            <p class="list-item warn-text">3. 优惠与免单订单计数说明：需特别注意，享受过 “免单福利” 的订单、使用过 “最高 20 元优惠” 的订单，均不再计入后续定制次数统计范围(即该类订单不参与 “定制两次及以上优惠”“连续定制三次及以上免单” 的次数累计)。</p>
+
+            <h3>四、定制内容合规要求及处理办法</h3>
+            <p>本工作室所有皮肤定制内容均严格在法律允许范围内展开，坚决拒绝任何违法违纪的定制需求。顾客不得要求定制包含以下内容的皮肤：</p>
+            <p class="list-item warn-text">◦涉及反共、破坏国家统一的内容；</p>
+            <p class="list-item warn-text">◦包含色情、低俗、暴力的内容；</p>
+            <p class="list-item warn-text">◦涉及诈骗、网络赌博、传销的内容；</p>
+            <p class="list-item warn-text">◦与毒品贩卖相关或宣扬毒品的内容；</p>
+            <p class="list-item warn-text">◦其他违反国家法律法规、社会公序良俗的内容。</p>
+            <p class="warn-text">处理办法：若在定制需求沟通或内容审核过程中，发现顾客存在上述违法违纪定制需求，本工作室有权立即拒绝提供定制服务，已收取的押金将不予退还；若涉及情节严重、可能触犯法律的情况，工作室将第一时间通知相关执法机构，并主动上交相关证据，配合执法工作。</p>
+
+            <h3>五、皮肤版权责任说明</h3>
+            <p class="list-item">1. 版权责任归属：本工作室所有定制皮肤，均严格按照顾客提供的参考图、设计思路或口述需求进行制作，工作室仅负责技术实现与效果呈现，不承担对定制需求所涉内容的版权审核义务。顾客需确保所提供的参考图、设计思路等素材均拥有合法版权，或已获得版权方的有效授权，顾客应对定制皮肤的版权问题承担全部责任。</p>
+            <p class="list-item warn-text">2. 版权纠纷处理：若因定制皮肤涉及版权侵权引发纠纷(如被版权所有方投诉、起诉等)，本工作室将秉持合法合规原则，义无反顾地站在版权所有方立场，不参与任何侵权相关的辩解或责任承担。该纠纷产生的全部法律责任(包括但不限于侵权认定、整改要求等)及经济赔偿(包括但不限于赔偿金、诉讼费、律师费等)，均由顾客(或实际侵权的无版权一方)自行承担，与本工作室无关。</p>
+
+            <h3>六、皮肤上架后使用规则</h3>
+            <p class="list-item">1. 免费皮肤使用说明：定制皮肤经网易审核上架后，根据网易平台规则，免费皮肤一旦设置不可转为付费。因此，上架至网易资源中心的免费皮肤，无法完全确保其他用户不会使用；但可保证皮肤的展开图(设计细节图)仅定制方拥有，不对外公开。</p>
+            <p class="list-item warn-text">2. 付费皮肤使用说明：若顾客希望单独使用皮肤(即避免他人使用)，可向工作室提出将皮肤设置为 “付费购买” 模式的需求。需注意：基础付费保证金：设置付费模式需向网易支付约 300 元的基础付费保证金，该费用由顾客承担，工作室提供代缴服务，并承诺不存在中间商赚差价，网易要求支付的具体金额将如实告知顾客，按实际金额收取。保证金属性：该基础付费保证金在支付后永久不予退回，且定制顾客自身在使用该付费皮肤时，仍需按网易平台规则支付皮肤的购买价格。</p>
+            <p class="list-item">3. 付费皮肤盈利说明：付费模式下的皮肤，无法完全保证一定没有其他玩家购买。若期间产生盈利(即其他玩家购买皮肤的收入)，全部盈利金额归定制者所有，工作室不收取任何形式的中间费用或分成。顾客可在每周日联系工作室客服，咨询该付费皮肤的当期盈利金额，客服将提供详细的盈利数据查询支持。</p>
+
+            <h3>七、皮肤代投服务规则</h3>
+            <p>为方便玩家展示自主设计的皮肤，本工作室针对特定对象提供皮肤代投服务，具体规则如下：</p>
+            <p class="list-item">1. 服务对象与免费属性：仅对 持有皮肤作品完整版权的代投者(即代投者为该皮肤的原创设计者，或已获得原创者的完整版权授权)提供代投服务，且该代投服务为 免费服务，工作室不收取任何代投手续费或服务费，仅协助将玩家自主设计的皮肤投放至网易资源中心。</p>
+            <p class="list-item warn-text">2. 代投皮肤合规要求：代投的皮肤需严格遵守本说明中 第四、五、六条规则，即需符合内容合规要求( 无违法违纪内容)、版权清晰(代投者对皮肤拥有合法版权)、且上架后需遵循网易平台关于皮肤使 用(免费 / 付费设置、保证金等)的相关规则。若代投皮肤不符合上述规则，工作室有权拒绝提供代投服务，且无需承担任何责任。</p>
+
+            <h3>八、皮肤内部审核规则(含代投与定制)</h3>
+            <p>为保障本工作室输出的定制皮肤质量，及所展示的代投皮肤质量(非工作室制作皮肤)，维护工作室口碑，工作室将在向网易平台送审前，对所有定制皮肤与代投皮肤进行初步审核，具体规则如下：</p>
+            <p class="list-item">1. 初审标准：初审将围绕皮肤的 质量、美观度 展开评估，重点排查过于儿童化、设计简单化、制作简易化的皮肤(如图案单一无层次、色彩搭配杂乱无章、细节缺失无设计感等)。</p>
+            <p class="list-item">2. 初审处理方式：若皮肤经初审判定为过于儿童化、简单化、简易化，不符合工作室质量标准，工作室将 不予向网易平台送审，并及时告知顾客或作品投稿人具体问题，要求其对皮肤内容进行修改优化，待修改后重新提交初审。</p>
+            <p class="list-item">3. 初审与网易审核的关系：工作室初审通过的皮肤，仅代表符合工作室质量标准，由于网易平台审核范围(如合规性、平台特定规则)、审核模式与工作室初审存在差异，仍可能出现网易审核不过审的情况。届时工作室客服将第一时间与顾客沟通，协助按照网易要求完善皮肤作品，直至符合网易审核标准。被工作室初审退回的皮肤，不代表网易平台一定不会过审，工作室拒绝上传此类皮肤，仅为避免低质量皮肤影响工作室口碑与服务品质，并非否定皮肤本身符合网易平台规则。若顾客或投稿人坚持上传，需自行通过其他渠道提交，工作室不再提供相关协助。</p>
+
+            <p>浮欢阁工作室始终致力于为您提供高质量、合规合法的皮肤定制与代投服务，感谢您对工作室规则的理解与配合。如有其他疑问，可随时与工作室客服沟通咨询。</p>
+            <div class="end-sign">幻方游戏工作室<br>©幻方游戏</div>
+        </div>
+        <h3>长按以下图片保存至相册后扫码打开，请认真阅读后在文末签署后提交！</h3>
+<img src="幻方定制协议.png" alt="">
+        <p>本页面由幻方工作室制作，请勿盗用</p>
+        <!-- 新增：页脚静态版权（完全无交互） -->
+        <footer class="page-footer">
+            <p>幻方游戏工作室 © 2026 版权所有 | 页面仅作价格展示，所有定制服务线上沟通</p>
+            <p style="margin-top:6px;">本工作室仅提供原创MC皮肤手绘定制，不售卖盗图、模板皮肤</p>
+        </footer>
+    </div>
+    <script>
+        // ========== 联系弹窗逻辑（DOM全局缓存，减少重复查询） ==========
+        const domCache = {
+            openBtn: document.getElementById('openContact'),
+            mask: document.getElementById('contactMask'),
+            closeBtn: document.getElementById('closeContact'),
+            canvas: document.getElementById('particleCanvas'),
+        };
+        const { openBtn, mask, closeBtn, canvas } = domCache;
+
+        openBtn.addEventListener('click', () => mask.classList.add('show'));
+        closeBtn.addEventListener('click', () => mask.classList.remove('show'));
+        mask.addEventListener('click', (e) => {
+            if (e.target === mask) mask.classList.remove('show');
+        });
+
+        // ========== 粒子动画极致性能优化 ==========
+        const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+        let width, height;
+        let particles = [];
+        let resizeTimer = null;
+        let animationId = null;
+        const MAX_PARTICLE = 200; // 限制最大粒子数量，防止堆积卡顿
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        resizeCanvas();
+
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeCanvas, 120);
+        }, { passive: true });
+
+        class Particle {
+            constructor(x, y, type = "click") {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                if (type === "slide") {
+                    this.size = Math.random() * 2.8 + 0.3;
+                    this.speedX = Math.random() * 2.2 - 1.1;
+                    this.speedY = Math.random() * 2.2 - 1.1;
+                    this.color = `hsl(${275 + Math.random() * 25}, 90%, 78%)`;
+                    this.decay = 0.018;
+                } else {
+                    this.size = Math.random() * 4.5 + 1;
+                    this.speedX = Math.random() * 6 - 3;
+                    this.speedY = Math.random() * 6 - 3;
+                    this.color = `hsl(${250 + Math.random() * 40}, 85%, 68%)`;
+                    this.decay = 0.015;
+                }
+                this.life = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                this.size *= 0.975;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function createSlideParticles(x, y) {
+            if (particles.length > MAX_PARTICLE) return;
+            for (let i = 0; i < 5; i++) {
+                const ox = (Math.random() - 0.5) * 12;
+                const oy = (Math.random() - 0.5) * 12;
+                particles.push(new Particle(x + ox, y + oy, "slide"));
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (particles.length > MAX_PARTICLE) return;
+            const x = e.clientX;
+            const y = e.clientY;
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(x, y, "click"));
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (e.buttons === 1) createSlideParticles(e.clientX, e.clientY);
+        });
+
+        let touchCache = {};
+        window.addEventListener('touchstart', (e) => {
+            const t = e.touches[0];
+            touchCache.x = t.clientX;
+            touchCache.y = t.clientY;
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            const t = e.touches[0];
+            createSlideParticles(t.clientX, t.clientY);
+        }, { passive: true });
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, width, height);
+            ctx.globalCompositeOperation = "lighter";
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+            ctx.globalCompositeOperation = "source-over";
+        }
+        animate();
+
+        // 切后台暂停动画省电
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationId);
+            } else {
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -26,7 +26,7 @@
             color: #fff;
             transition: filter 0.4s ease;
         }
-        /* 全局锁定遮罩 */
+        /* 锁定遮罩 */
         .lock-mask {
             position: fixed;
             inset: 0;
@@ -49,6 +49,7 @@
             font-size: clamp(14px,3vw,20px);
             color: #b0b8d4;
             text-align: center;
+            line-height: 1.6;
         }
         .admin-btn {
             margin-top: 30px;
@@ -65,7 +66,7 @@
         .admin-btn:active {
             background: #2563eb;
         }
-        /* 管理员解锁弹窗 */
+        /* 管理员弹窗 */
         .admin-dialog {
             position: fixed;
             width: min(90vw,420px);
@@ -99,7 +100,6 @@
         .dialog-btns {
             display: flex;
             gap: 12px;
-            flex-wrap: nowrap;
         }
         .dialog-btns button {
             flex: 1;
@@ -109,14 +109,8 @@
             border: none;
             cursor: pointer;
         }
-        .confirm-unlock {
-            background: #22c55e;
-            color: white;
-        }
-        .close-dialog {
-            background: #64748b;
-            color: white;
-        }
+        .confirm-unlock {background: #22c55e;color: white;}
+        .close-dialog {background: #64748b;color: white;}
         /* 主画布容器 */
         .canvas-wrap {
             text-align: center;
@@ -130,58 +124,46 @@
             z-index: 2;
             width: min(92vw, 700px);
         }
-        #mainCanvas {
-            width: 100%;
-        }
-        /* 全屏动态水印画布 */
+        #mainCanvas {width: 100%;}
+        /* 全屏水印画布 */
         #waterCanvas {
             position: fixed;
             inset: 0;
             z-index: 1;
             pointer-events: none;
-            opacity: 0.09;
         }
-        /* 打印时清空页面 */
-        @media print {
-            body * {
-                display: none !important;
-            }
-        }
+        /* 打印空白拦截 */
+        @media print {body * {display: none !important;}}
     </style>
 </head>
 <body>
-    <!-- 锁定遮罩 -->
     <div class="lock-mask" id="lockMask">
-        <h1>截图次数已用尽</h1>
-        <p>本页面仅允许截屏一次，清除浏览器缓存才可重置</p>
+        <h1>截图权限已耗尽</h1>
+        <p>当前设备仅允许截图一次，转发截图将携带你的设备溯源水印<br>无法重置以截图</p>
         <button class="admin-btn" id="unlockBtn">管理员解锁通道</button>
     </div>
-
-    <!-- 管理员密钥弹窗 -->
     <div class="admin-dialog" id="adminDialog">
         <h3>管理员解锁验证</h3>
-        <input type="password" id="keyInput" placeholder="请输入管理员密钥">
+        <input type="password" id="keyInput" placeholder="输入管理员密钥">
         <div class="dialog-btns">
             <button class="confirm-unlock" id="confirmUnlock">确认解锁</button>
             <button class="close-dialog" id="closeDialog">关闭</button>
         </div>
     </div>
-
-    <!-- 动态水印画布 -->
     <canvas id="waterCanvas"></canvas>
-
-    <!-- 主内容画布（文字+时钟全部绘制在Canvas，无法复制） -->
     <div class="canvas-wrap">
         <canvas id="mainCanvas"></canvas>
     </div>
 
 <script>
-    const STORAGE_KEY = "hf_studio_capture_lock";
-    const ADMIN_PASSWORD = "201300"; // 管理员密钥可自行修改
-    let isLocked = localStorage.getItem(STORAGE_KEY) === "1";
-    let lockFlashTimer = null;
+    // 配置
+    const STORAGE_KEY = "hf_capture_lock_v2";
+    const SESSION_KEY = "hf_temp_lock";
+    const ADMIN_PASSWORD = "hf2026cube";
+    let isLocked = localStorage.getItem(STORAGE_KEY) === "1" || sessionStorage.getItem(SESSION_KEY) === "1";
+    let flashTimer = null;
 
-    // DOM元素
+    // DOM
     const lockMask = document.getElementById('lockMask');
     const adminDialog = document.getElementById('adminDialog');
     const unlockBtn = document.getElementById('unlockBtn');
@@ -193,56 +175,61 @@
     const waterCanvas = document.getElementById('waterCanvas');
     const waterCtx = waterCanvas.getContext('2d');
 
+    // 生成设备唯一指纹（溯源水印核心）
+    function getDeviceFingerprint() {
+        const ua = navigator.userAgent;
+        const screenInfo = `${screen.width}*${screen.height}`;
+        const tz = new Date().getTimezoneOffset();
+        const raw = ua + screenInfo + tz;
+        // 简易哈希
+        let hash = 0;
+        for(let i=0;i<raw.length;i++) hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+        hash = hash >>> 0;
+        return `幻方设备-${hash.toString(16)}`;
+    }
+    const deviceId = getDeviceFingerprint();
+
     // 页面加载直接锁定
     if(isLocked) lockPage();
 
-    // ========== 1. Canvas自适应尺寸 ==========
+    // 画布自适应
     function resizeCanvas() {
-        // 主画布
         const wrap = document.querySelector('.canvas-wrap');
         mainCanvas.width = wrap.clientWidth - 20;
         mainCanvas.height = wrap.clientHeight;
-        // 水印画布全屏
         waterCanvas.width = window.innerWidth;
         waterCanvas.height = window.innerHeight;
     }
     resizeCanvas();
-    window.addEventListener('resize', ()=>{
-        resizeCanvas();
-        drawWaterMark();
-    });
+    window.addEventListener('resize', ()=>{resizeCanvas();drawWater();});
 
-    // ========== 2. Canvas绘制文字+实时北京时间（无法复制DOM文字） ==========
+    // 绘制主内容+北京时间（纯Canvas，无DOM文字）
     function drawMain() {
         mainCtx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
         const now = new Date();
         const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const d = String(now.getDate()).padStart(2, '0');
-        const h = String(now.getHours()).padStart(2, '0');
-        const mi = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
+        const m = String(now.getMonth()+1).padStart(2,'0');
+        const d = String(now.getDate()).padStart(2,'0');
+        const h = String(now.getHours()).padStart(2,'0');
+        const mi = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
         const timeText = `${y}-${m}-${d} ${h}:${mi}:${s}`;
         const titleText = "幻方工作室彩蛋页，请截图保留";
         const tipText = "标准北京时间 · 时间不可篡改";
 
-        // 绘制标题渐变文字
         const titleSize = Math.min(40, mainCanvas.width / 12);
         mainCtx.font = `bold ${titleSize}px Microsoft YaHei`;
         mainCtx.textAlign = "center";
         const grad = mainCtx.createLinearGradient(0,0,mainCanvas.width,0);
-        grad.addColorStop(0,"#74b9ff");
-        grad.addColorStop(1,"#a29bfe");
+        grad.addColorStop(0,"#74b9ff");grad.addColorStop(1,"#a29bfe");
         mainCtx.fillStyle = grad;
         mainCtx.fillText(titleText, mainCanvas.width/2, titleSize + 10);
 
-        // 绘制时间
         const timeSize = Math.min(52, mainCanvas.width / 7);
         mainCtx.font = `${timeSize}px Microsoft YaHei`;
         mainCtx.fillStyle = "#e0e8ff";
         mainCtx.fillText(timeText, mainCanvas.width/2, titleSize + timeSize + 40);
 
-        // 底部提示
         const tipSize = Math.min(17, mainCanvas.width / 25);
         mainCtx.font = `${tipSize}px Microsoft YaHei`;
         mainCtx.fillStyle = "#8892b0";
@@ -251,13 +238,15 @@
     drawMain();
     setInterval(drawMain, 1000);
 
-    // ========== 3. 动态全屏水印（每帧轻微偏移，截图无法清除） ==========
-    function drawWaterMark() {
+    // 动态溯源水印（携带设备ID，持续偏移）
+    function drawWater() {
         waterCtx.clearRect(0,0,waterCanvas.width,waterCanvas.height);
-        const text = "幻方工作室 一次性彩蛋";
-        const gapX = 220;
-        const gapY = 160;
-        const offset = Date.now() % 12; // 动态偏移
+        const text = `${deviceId} | 一次性彩蛋`;
+        const gapX = 240;
+        const gapY = 170;
+        const offset = Date.now() % 18;
+        const opacity = 0.06 + Math.sin(Date.now()/800) * 0.03;
+        waterCtx.globalAlpha = opacity;
         waterCtx.font = "14px Microsoft YaHei";
         waterCtx.fillStyle = "#ffffff";
         waterCtx.translate(offset, offset);
@@ -268,37 +257,37 @@
             }
         }
         waterCtx.setTransform(1,0,0,1,0,0);
+        waterCtx.globalAlpha = 1;
     }
-    drawWaterMark();
-    setInterval(drawWaterMark, 150);
+    drawWater();
+    setInterval(drawWater, 100);
 
-    // ========== 4. 监控水印被删除，自动重建 ==========
+    // 监控水印被删除自动重建
     const observer = new MutationObserver(()=>{
-        if(!document.getElementById('waterCanvas')) {
-            document.body.insertBefore(waterCanvas, document.body.firstChild);
-        }
+        if(!document.getElementById('waterCanvas')) document.body.prepend(waterCanvas);
     });
     observer.observe(document.body, {childList:true, subtree:true});
 
-    // ========== 5. 永久锁定页面核心函数 ==========
+    // 锁定页面（双存储永久标记）
     function lockPage() {
         if(isLocked) return;
         localStorage.setItem(STORAGE_KEY, "1");
+        sessionStorage.setItem(SESSION_KEY, "1");
         isLocked = true;
         lockMask.style.display = "flex";
         document.body.style.filter = "blur(14px) brightness(0.1)";
         document.body.style.pointerEvents = "none";
-        // 高频闪烁干扰二次截图
-        lockFlashTimer = setInterval(() => {
+        flashTimer = setInterval(()=>{
             document.body.style.opacity = document.body.style.opacity === "0" ? "1" : "0";
         }, 100);
     }
 
-    // ========== 6. 管理员解锁重置锁定 ==========
+    // 管理员解锁
     function unlockPage() {
         localStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
         isLocked = false;
-        clearInterval(lockFlashTimer);
+        clearInterval(flashTimer);
         lockMask.style.display = "none";
         document.body.style.filter = "none";
         document.body.style.opacity = "1";
@@ -309,55 +298,45 @@
     }
 
     // 弹窗交互
-    unlockBtn.addEventListener("click", ()=> adminDialog.style.display = "flex");
-    closeDialog.addEventListener("click", ()=>{
-        adminDialog.style.display = "none";
-        keyInput.value = "";
-    });
-    confirmUnlock.addEventListener("click", ()=>{
+    unlockBtn.onclick = ()=> adminDialog.style.display = "flex";
+    closeDialog.onclick = ()=>{adminDialog.style.display = "none";keyInput.value="";};
+    confirmUnlock.onclick = ()=>{
         if(keyInput.value === ADMIN_PASSWORD) unlockPage();
-        else {
-            alert("密钥错误，无法解锁");
-            keyInput.value = "";
-        }
-    });
+        else alert("密钥错误，无法解锁");
+    };
 
-    // ========== 7. 多层截屏触发监听 ==========
-    document.addEventListener('visibilitychange', ()=>{
-        if(document.hidden) lockPage();
-    });
+    // 截屏触发监听
+    document.addEventListener('visibilitychange', ()=>document.hidden && lockPage());
     window.addEventListener('blur', lockPage);
     window.addEventListener('resize', lockPage);
 
-    // ========== 8. 拦截浏览器录屏API ==========
-    if(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-        const originGet = navigator.mediaDevices.getDisplayMedia;
-        navigator.mediaDevices.getDisplayMedia = function() {
+    // 拦截录屏API
+    if(navigator.mediaDevices?.getDisplayMedia) {
+        const oldFn = navigator.mediaDevices.getDisplayMedia;
+        navigator.mediaDevices.getDisplayMedia = function(){
             lockPage();
             return Promise.reject("禁止录屏");
         }
     }
 
-    // ========== 9. 全渠道禁用复制、右键、保存、控制台 ==========
+    // 全局禁用复制、右键、快捷键
     document.addEventListener('contextmenu', e=>e.preventDefault());
     document.oncopy = e=>e.preventDefault();
     document.oncut = e=>e.preventDefault();
     document.onpaste = e=>e.preventDefault();
     window.onbeforeprint = lockPage;
-
     document.addEventListener('keydown', e=>{
         const k = e.key.toLowerCase();
-        if(e.key === 'F12' || (e.ctrlKey && ['s','p','u','i'].includes(k))) {
-            e.preventDefault();
-            lockPage();
+        if(e.key === 'F12' || ['s','p','u','i'].includes(k) && e.ctrlKey) {
+            e.preventDefault();lockPage();
         }
     });
 
-    // 检测开发者工具打开直接锁定
+    // 检测开发者工具
     setInterval(()=>{
         const wGap = window.outerWidth - window.innerWidth;
         const hGap = window.outerHeight - window.innerHeight;
-        if(wGap > 120 || hGap > 120) lockPage();
+        if(wGap>120 || hGap>120) lockPage();
     }, 500);
 </script>
 </body>

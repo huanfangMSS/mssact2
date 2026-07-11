@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>验证中转页</title>
+    <title>中转验证页</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,12 @@
         h2 {
             text-align: center;
             color: #333;
+            margin-bottom: 10px;
+        }
+        .tip {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
             margin-bottom: 25px;
         }
         #numInput {
@@ -62,33 +68,37 @@
 </head>
 <body>
     <div class="box">
-        <h2>请输入访问密码</h2>
+        <h2>输入访问密码</h2>
+        <p class="tip">幻方游戏</p>
         <input type="number" id="numInput" placeholder="输入数字密码">
-        <button id="submitBtn">验证进入主页</button>
+        <button id="submitBtn">确认进入</button>
     </div>
 
     <script>
-        // 修改这里的数字密码
-        const correctNum = 20262027;
-        // 目标页面是你的 yincang.html
-        const targetPage = "yincang.html";
+        // 密码与对应页面配置，自行增删修改
+        const pageMap = {
+            20262027: "yincang.html",    // 密码20262027 → 隐藏404页面
+            520789: "page3.html",    // 密码520789 → 特殊定价公示页
+            888888: "404.html"      // 密码888888 → 无
+        };
 
         const input = document.getElementById('numInput');
         const btn = document.getElementById('submitBtn');
 
         btn.onclick = function() {
-            let val = Number(input.value);
-            if (val === correctNum) {
-                alert("验证通过，进入");
-                window.location.href = targetPage;
+            let pwd = Number(input.value);
+            // 判断密码是否存在配置里
+            if (pageMap.hasOwnProperty(pwd)) {
+                alert("验证成功，正在跳转！");
+                window.location.href = pageMap[pwd];
             } else {
-                alert("密码错误，请重新输入");
+                alert("密码错误，不存在该通道！");
                 input.value = "";
                 input.focus();
             }
         }
 
-        // 按下回车直接提交
+        // 回车快速提交
         input.onkeydown = function(e) {
             if (e.key === 'Enter') {
                 btn.click();

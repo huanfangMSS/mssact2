@@ -61,6 +61,10 @@
             text-align: center;
             width: 100%;
             max-width: 520px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .num-404 {
             font-size: 160px;
@@ -131,6 +135,26 @@
             box-shadow: 0 0 30px #00ccff;
         }
 
+        /* 底部文字：贴紧页面最底部，灰色文字 */
+        .footer-text {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #999999;
+            font-size: 14px;
+            z-index: 10;
+            padding: 8px 0;
+        }
+        .footer-text a {
+            color: #bbbbbb;
+            text-decoration: none;
+        }
+        .footer-text a:hover {
+            color: #dddddd;
+        }
+
         /* ========== 移动端适配核心 ========== */
         @media screen and (max-width: 768px) {
             .num-404 {
@@ -145,6 +169,10 @@
             }
             .meteor {
                 transform: scale(0.7);
+            }
+            .footer-text {
+                font-size: 13px;
+                padding: 6px 0;
             }
         }
         @media screen and (max-width: 480px) {
@@ -167,6 +195,10 @@
             }
             .meteor {
                 transform: scale(0.5);
+            }
+            .footer-text {
+                font-size: 12px;
+                padding: 5px 0;
             }
         }
     </style>
@@ -201,10 +233,10 @@
         <h1 class="num-404">404</h1>
         <h2 class="tip-text">宇宙迷路，页面消失</h2>
         <p class="desc">你寻找的页面已飘入星际深渊，不存在、已删除或链接地址错误，不如返回主页重新探索吧</p>
-        <a href="https://huanfangmss.github.io/mssact2/" class="back-btn">返回首页</a>
+        <a href="/" class="back-btn">返回首页</a>
     </div>
 
-    <!-- 页面底部文字 -->
+    <!-- 页面最底部灰色文字 -->
     <div class="footer-text">
         © 2026 幻方游戏工作室 All Rights Reserved | <a href="/about">关于我们</a>
     </div>
